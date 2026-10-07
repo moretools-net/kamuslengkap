@@ -5,19 +5,31 @@ import { Layout } from './layout';
 interface HomeProps {
   popularWords: WordEntry[];
   recentWords: WordEntry[];
+  suggestions?: WordEntry[];
 }
 
-export const HomePage: FC<HomeProps> = ({ popularWords = [], recentWords = [] }) => {
-  const suggestions = [
-    { term: 'FOMO', desc: 'Slang Modern' },
-    { term: 'Sumeh', desc: 'Bahasa Jawa' },
-    { term: 'Resiliensi', desc: 'Psikologi' },
-    { term: 'Santuy', desc: 'Gaul Indonesia' },
-    { term: 'Ikigai', desc: 'Filosofi Jepang' },
-    { term: 'Gaslighting', desc: 'Istilah Populer' },
-    { term: 'Hygge', desc: 'Konsep Denmark' },
-    { term: 'Silih Asah', desc: 'Falsafah Sunda' },
-  ];
+export const HomePage: FC<HomeProps> = ({
+  popularWords = [],
+  recentWords = [],
+  suggestions = [],
+}) => {
+  // Ambil suggestion dari database D1. Fallback jika database masih kosong
+  const displaySuggestions =
+    suggestions.length > 0
+      ? suggestions.map((s) => ({
+          term: s.term,
+          slug: s.slug,
+          desc: s.tags?.[0] || s.language_name || 'Istilah',
+          flag: s.language_flag || '',
+        }))
+      : [
+          { term: 'FOMO', slug: 'fomo', desc: 'Slang Populer', flag: '🇬🇧' },
+          { term: 'Sumeh', slug: 'sumeh', desc: 'Bahasa Jawa', flag: '🇮🇩' },
+          { term: 'Resiliensi', slug: 'resiliensi', desc: 'Psikologi', flag: '🇮🇩' },
+          { term: 'Santuy', slug: 'santuy', desc: 'Gaul', flag: '🇮🇩' },
+          { term: 'Ikigai', slug: 'ikigai', desc: 'Filosofi', flag: '🇯🇵' },
+          { term: 'Cuan', slug: 'cuan', desc: 'Keuangan', flag: '🇮🇩' },
+        ];
 
   return (
     <Layout
@@ -72,14 +84,15 @@ export const HomePage: FC<HomeProps> = ({ popularWords = [], recentWords = [] })
           </div>
         </form>
 
-        {/* Quick Suggestion Pills */}
+        {/* Quick Suggestion Pills (Dynamic from Database) */}
         <div class="flex flex-wrap items-center justify-center gap-2 text-xs text-stone-500">
           <span class="font-medium text-stone-400">Contoh pencarian:</span>
-          {suggestions.map((item) => (
+          {displaySuggestions.map((item) => (
             <a
-              href={`/makna/${item.term.toLowerCase().replace(/\s+/g, '-')}`}
+              href={`/makna/${item.slug || item.term.toLowerCase().replace(/\s+/g, '-')}`}
               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-stone-200 hover:border-brand-blue hover:text-brand-blue-dark hover:bg-brand-blue-light/50 rounded-lg text-stone-700 font-medium transition shadow-2xs"
             >
+              {item.flag && <span class="text-xs">{item.flag}</span>}
               <span>{item.term}</span>
               <span class="text-[10px] text-stone-400">({item.desc})</span>
             </a>

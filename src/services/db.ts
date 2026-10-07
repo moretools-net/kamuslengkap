@@ -179,6 +179,30 @@ export async function getRecentWords(db: D1Database, limit: number = 8): Promise
   }
 }
 
+export async function getRandomWords(db: D1Database, limit: number = 8): Promise<WordEntry[]> {
+  if (!db) return [];
+  try {
+    const { results } = await db
+      .prepare(`
+        SELECT 
+          w.*,
+          l.name AS lang_name,
+          l.flag_emoji AS lang_flag
+        FROM words w
+        LEFT JOIN languages l ON w.language_code = l.code
+        ORDER BY RANDOM()
+        LIMIT ?
+      `)
+      .bind(limit)
+      .all<any>();
+
+    return (results || []).map(mapRowToWordEntry);
+  } catch (err) {
+    console.error('Error fetching random suggestions from D1:', err);
+    return [];
+  }
+}
+
 export async function getAllLanguages(db: D1Database): Promise<Language[]> {
   if (!db) return [];
   try {

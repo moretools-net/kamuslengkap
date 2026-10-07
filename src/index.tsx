@@ -3,6 +3,7 @@ import { getAIProvider } from './services/ai';
 import { slugify } from './services/ai/types';
 import {
   getPopularWords,
+  getRandomWords,
   getRecentWords,
   getWordBySlug,
   incrementSearchCount,
@@ -23,16 +24,21 @@ const app = new Hono<{ Bindings: Env }>();
 
 // 1. Halaman Beranda (Modern Edge Homepage)
 app.get('/', async (c) => {
-  const [popularWords, recentWords] = await Promise.all([
+  const [popularWords, recentWords, suggestionWords] = await Promise.all([
     getPopularWords(c.env.DB, 8).catch(() => []),
     getRecentWords(c.env.DB, 8).catch(() => []),
+    getRandomWords(c.env.DB, 8).catch(() => []),
   ]);
 
   // Cache homepage selama 5 menit di browser, 15 menit di Cloudflare Edge CDN
   c.header('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=3600');
 
   return c.html(
-    <HomePage popularWords={popularWords} recentWords={recentWords} />
+    <HomePage
+      popularWords={popularWords}
+      recentWords={recentWords}
+      suggestions={suggestionWords}
+    />
   );
 });
 

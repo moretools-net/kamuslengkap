@@ -1,0 +1,23 @@
+-- Seed data: Bahasa-bahasa yang umum muncul di KamusLengkap
+INSERT OR IGNORE INTO languages (code, name, native_name, flag_emoji) VALUES
+  ('id', 'Bahasa Indonesia',  'Indonesian',  '🇮🇩'),
+  ('en', 'Bahasa Inggris',    'English',     '🇬🇧'),
+  ('jv', 'Bahasa Jawa',       'Javanese',    '🇮🇩'),
+  ('su', 'Bahasa Sunda',      'Sundanese',   '🇮🇩'),
+  ('ms', 'Bahasa Melayu',     'Malay',       '🇲🇾'),
+  ('ar', 'Bahasa Arab',       'Arabic',      '🇸🇦'),
+  ('zh', 'Bahasa Mandarin',   'Chinese',     '🇨🇳'),
+  ('ja', 'Bahasa Jepang',     'Japanese',    '🇯🇵'),
+  ('ko', 'Bahasa Korea',      'Korean',      '🇰🇷'),
+  ('nl', 'Bahasa Belanda',    'Dutch',       '🇳🇱'),
+  ('pt', 'Bahasa Portugis',   'Portuguese',  '🇵🇹'),
+  ('fr', 'Bahasa Prancis',    'French',      '🇫🇷'),
+  ('de', 'Bahasa Jerman',     'German',      '🇩🇪'),
+  ('es', 'Bahasa Spanyol',    'Spanish',     '🇪🇸'),
+  ('hi', 'Bahasa Hindi',      'Hindi',       '🇮🇳'),
+  ('bug','Bahasa Bugis',      'Buginese',    '🇮🇩'),
+  ('min','Bahasa Minang',     'Minangkabau', '🇮🇩'),
+  ('mad','Bahasa Madura',     'Madurese',    '🇮🇩'),
+  ('ban','Bahasa Bali',       'Balinese',    '🇮🇩'),
+  ('la', 'Bahasa Latin',      'Latin',       '🏛️'),
+  ('xx', 'Campuran / Multibahasa', 'Mixed', '🌐');

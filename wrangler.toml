@@ -1,0 +1,27 @@
+name = "kamuslengkap"
+main = "src/index.tsx"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Static Assets (Compiled Tailwind CSS, favicon, JS)
+assets = { directory = "./public", binding = "ASSETS" }
+
+# Cloudflare D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "kamuslengkap-db"
+database_id = "kamuslengkap-db-local"
+
+# Cloudflare Workers AI Binding (Bawaan Cloudflare tanpa perlu API key luar)
+[ai]
+binding = "AI"
+
+# Environment Variables
+[vars]
+# Domain / IP origin VPS DigitalOcean tempat PHP lama berjalan
+ORIGIN_VPS_HOST = "https://kamuslengkap.com"
+
+# Provider pilihan: "gemini" | "deepseek" | "cloudflare_gateway" | "workers_ai"
+AI_PROVIDER = "workers_ai"
+# Model Workers AI — lihat daftar: https://developers.cloudflare.com/workers-ai/models/
+WORKERS_AI_MODEL = "@cf/meta/llama-3.2-3b-instruct"

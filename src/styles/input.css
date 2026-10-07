@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  /* Primary Color & Links: Biru (dari palet #0890bc) */
+  --color-brand-blue: #22d3ee;
+  --color-brand-blue-dark: #0690bc;
+  --color-brand-blue-deep: #1b5b70;
+  --color-brand-blue-light: #f0f8fb;
+  --color-brand-blue-border: #bde0ee;
+
+  /* Accent Sedikit Saja: Merah (#dc3c3c) */
+  --color-brand-red: #dc3c3c;
+  --color-brand-red-dark: #b92a2a;
+  --color-brand-red-light: #fef2f2;
+  --color-brand-red-tint: #fae6e6;
+
+  /* Netral */
+  --color-brand-black: #000000;
+  --color-brand-bg: #fefefe;
+  --color-brand-white: #ffffff;
+}
+
+@layer base {
+  body {
+    background-color: #fefefe;
+    color: #1a1a1a;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  a {
+    color: inherit;
+  }
+}

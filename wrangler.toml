@@ -19,7 +19,7 @@ binding = "AI"
 # Environment Variables
 [vars]
 # Domain / IP origin VPS DigitalOcean tempat PHP lama berjalan
-ORIGIN_VPS_HOST = "https://kamuslengkap.com"
+ORIGIN_VPS_HOST = "https://web.kamuslengkap.com"
 
 # Provider pilihan: "gemini" | "deepseek" | "cloudflare_gateway" | "workers_ai"
 AI_PROVIDER = "workers_ai"

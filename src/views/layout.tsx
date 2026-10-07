@@ -145,7 +145,7 @@ export const Layout: FC<PropsWithChildren<LayoutProps>> = ({
         </main>
 
         {/* Footer */}
-        <footer class="bg-white border-t border-stone-200 mt-auto text-stone-500 text-sm">
+        <footer class="google-anno-skip bg-white border-t border-stone-200 mt-auto text-stone-500 text-sm">
           <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
               <div class="md:col-span-2">

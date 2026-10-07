@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { getAIProvider } from './services/ai';
 import { slugify } from './services/ai/types';
 import {
+  getAllSlugs,
   getPopularWords,
   getRandomWords,
   getRecentWords,
@@ -178,7 +179,55 @@ app.get('/api/makna/:query', async (c) => {
   return c.json({ success: true, data: entry });
 });
 
-// 5. TRANSPARENT PROXY: Teruskan semua path lama & route lainnya ke VPS DigitalOcean
+// 5. Sitemap XML — generate dinamis dari D1 + halaman statis
+app.get('/sitemap.xml', async (c) => {
+  const BASE_URL = 'https://kamuslengkap.com';
+  const today = new Date().toISOString().split('T')[0];
+
+  // Halaman statis dengan prioritas tinggi
+  const staticUrls = [
+    { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily', lastmod: today },
+    { loc: `${BASE_URL}/kamus`, priority: '0.8', changefreq: 'weekly', lastmod: today },
+    { loc: `${BASE_URL}/istilah`, priority: '0.8', changefreq: 'weekly', lastmod: today },
+  ];
+
+  // Ambil semua slug dari D1
+  const slugRows = await getAllSlugs(c.env.DB).catch(() => []);
+
+  const dynamicUrls = slugRows.map(({ slug, updated_at }) => {
+    const lastmod = updated_at
+      ? updated_at.split('T')[0]
+      : today;
+    return `  <url>
+    <loc>${BASE_URL}/makna/${slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+  });
+
+  const staticXml = staticUrls
+    .map(
+      ({ loc, priority, changefreq, lastmod }) =>
+        `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`
+    )
+    .join('\n');
+
+  const xml = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    staticXml,
+    ...dynamicUrls,
+    '</urlset>',
+  ].join('\n');
+
+  // Cache: browser 1 jam, edge 24 jam
+  c.header('Content-Type', 'application/xml; charset=utf-8');
+  c.header('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+  return c.body(xml);
+});
+
+// 6. TRANSPARENT PROXY: Teruskan semua path lama & route lainnya ke VPS DigitalOcean
 // Meliputi: /kamus/*, /arti/*, /istilah/*, /daftar/*, /p/*, /assets/*, dll.
 app.all('*', async (c) => {
   return proxyToOrigin(c);

@@ -216,3 +216,20 @@ export async function getAllLanguages(db: D1Database): Promise<Language[]> {
     return [];
   }
 }
+
+export async function getAllSlugs(
+  db: D1Database
+): Promise<{ slug: string; updated_at: string }[]> {
+  if (!db) return [];
+  try {
+    const { results } = await db
+      .prepare(
+        `SELECT slug, updated_at FROM words ORDER BY search_count DESC, updated_at DESC LIMIT 5000`
+      )
+      .all<any>();
+    return results || [];
+  } catch (err) {
+    console.error('Error fetching all slugs for sitemap:', err);
+    return [];
+  }
+}

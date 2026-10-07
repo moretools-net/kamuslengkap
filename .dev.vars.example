@@ -4,7 +4,7 @@ WORKERS_AI_MODEL=@cf/meta/llama-3.2-3b-instruct
 
 # Google Gemini API (Dapatkan gratis di https://aistudio.google.com/)
 GEMINI_API_KEY=
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-3.8-flash
 
 # DeepSeek API (Dapatkan di https://platform.deepseek.com/)
 DEEPSEEK_API_KEY=

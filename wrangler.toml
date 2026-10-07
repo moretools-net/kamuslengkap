@@ -24,4 +24,4 @@ ORIGIN_VPS_HOST = "https://web.kamuslengkap.com"
 # Provider pilihan: "gemini" | "deepseek" | "cloudflare_gateway" | "workers_ai"
 AI_PROVIDER = "workers_ai"
 # Model Workers AI — lihat daftar: https://developers.cloudflare.com/workers-ai/models/
-WORKERS_AI_MODEL = "@cf/meta/llama-3.2-3b-instruct"
+WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct"

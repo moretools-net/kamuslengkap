@@ -27,7 +27,7 @@ export class WorkersAIProvider implements AIProvider {
 
     const result = await this.aiBinding.run(this.model, {
       messages,
-      temperature: 0.2,
+      temperature: 0.1,
       max_tokens: 2048,
     });
 

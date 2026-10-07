@@ -69,7 +69,7 @@ export const Layout: FC<PropsWithChildren<LayoutProps>> = ({
       </head>
       <body class="bg-brand-bg text-brand-black antialiased min-h-screen flex flex-col font-sans">
         {/* Top Navbar */}
-        <header class="bg-white border-b border-stone-200 sticky top-0 z-50 shadow-2xs">
+        <header class="google-anno-skip bg-white border-b border-stone-200 sticky top-0 z-50 shadow-2xs">
           <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             {/* Logo */}
             <a href="/" class="flex items-center shrink-0 hover:opacity-90 transition">

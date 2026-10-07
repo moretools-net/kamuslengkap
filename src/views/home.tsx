@@ -14,6 +14,15 @@ export const HomePage: FC<HomeProps> = ({
   suggestions = [],
 }) => {
   // Ambil suggestion dari database D1. Fallback jika database masih kosong
+  const fallbackSuggestions = [
+    { term: 'FOMO', slug: 'fomo', desc: 'Slang Populer', flag: '🇬🇧' },
+    { term: 'Sumeh', slug: 'sumeh', desc: 'Bahasa Jawa', flag: '🇮🇩' },
+    { term: 'Resiliensi', slug: 'resiliensi', desc: 'Psikologi', flag: '🇮🇩' },
+    { term: 'Santuy', slug: 'santuy', desc: 'Gaul', flag: '🇮🇩' },
+    { term: 'Ikigai', slug: 'ikigai', desc: 'Filosofi', flag: '🇯🇵' },
+    { term: 'Cuan', slug: 'cuan', desc: 'Keuangan', flag: '🇮🇩' },
+  ];
+
   const displaySuggestions =
     suggestions.length > 0
       ? suggestions.map((s) => ({
@@ -22,14 +31,14 @@ export const HomePage: FC<HomeProps> = ({
           desc: s.tags?.[0] || s.language_name || 'Istilah',
           flag: s.language_flag || '',
         }))
-      : [
-          { term: 'FOMO', slug: 'fomo', desc: 'Slang Populer', flag: '🇬🇧' },
-          { term: 'Sumeh', slug: 'sumeh', desc: 'Bahasa Jawa', flag: '🇮🇩' },
-          { term: 'Resiliensi', slug: 'resiliensi', desc: 'Psikologi', flag: '🇮🇩' },
-          { term: 'Santuy', slug: 'santuy', desc: 'Gaul', flag: '🇮🇩' },
-          { term: 'Ikigai', slug: 'ikigai', desc: 'Filosofi', flag: '🇯🇵' },
-          { term: 'Cuan', slug: 'cuan', desc: 'Keuangan', flag: '🇮🇩' },
-        ];
+      : fallbackSuggestions;
+
+  // Placeholder dinamis: ambil 3 term pertama dari suggestions
+  const placeholderTerms = displaySuggestions
+    .slice(0, 3)
+    .map((s) => s.term.toLowerCase())
+    .join(', ');
+  const searchPlaceholder = `Ketik kata atau istilah apa saja (contoh: ${placeholderTerms})...`;
 
   return (
     <Layout
@@ -70,7 +79,7 @@ export const HomePage: FC<HomeProps> = ({
               id="search-input"
               type="text"
               name="q"
-              placeholder="Ketik kata atau istilah apa saja (contoh: fomo, sumeh, resiliensi)..."
+              placeholder={searchPlaceholder}
               autocomplete="off"
               autofocus
               class="w-full pl-12 pr-28 sm:pr-32 py-4 bg-white border-2 border-stone-200 hover:border-brand-blue focus:border-brand-blue-dark focus:ring-4 focus:ring-brand-blue-light rounded-2xl text-brand-black placeholder-stone-400 text-sm sm:text-base outline-none transition"

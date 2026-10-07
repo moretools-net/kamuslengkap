@@ -129,10 +129,68 @@ npm run deploy
 
 ---
 
-## 🔀 Pengaturan DNS & Routing di Cloudflare
+## 🔀 Pengaturan Domain & Routing di Cloudflare
 
-Agar domain `kamuslengkap.com` menggunakan Worker ini:
-1. Buka dashboard Cloudflare untuk zona `kamuslengkap.com`.
-2. Masuk ke menu **Workers Routes** (atau tambahkan Custom Domain langsung di Worker).
-3. Tambahkan Route: `kamuslengkap.com/*` mengarah ke Worker `kamuslengkap`.
-4. Pastikan di `wrangler.toml` nilai `ORIGIN_VPS_HOST` mengarah ke IP atau hostname asal VPS DigitalOcean Anda (misal: `https://origin-vps.kamuslengkap.com` atau IP VPS langsung).
+Aplikasi ini menggunakan pola arsitektur **_Strangler Fig_**. Worker bertindak sebagai pintu gerbang utama (*gateway*) di domain utama, sementara VPS DigitalOcean tetap hidup di belakang layar melayani sistem lama.
+
+### 1. Alur Kerja Permintaan (Request Flow)
+
+```
+Pengunjung Browser
+       │
+       ▼ https://kamuslengkap.com/
+┌────────────────────────────────────────────────────────┐
+│             CLOUDFLARE WORKER (Edge Gateway)           │
+├───────────────────────────┬────────────────────────────┤
+│ Path Baru:                │ Path Lama (Web PHP Lawas): │
+│ • /                       │ • /kamus/*                 │
+│ • /makna/*                │ • /arti/*                  │
+│ • /api/*                  │ • /istilah/*               │
+│ • /styles.css, /logo.png  │ • /daftar/*, /p/*, dll.    │
+└─────────────┬─────────────┴─────────────┬──────────────┘
+              │                           │ (Transparent Proxy Fetch)
+              ▼                           ▼
+        Cloudflare D1              VPS DigitalOcean
+         (Cache AI)             (origin.kamuslengkap.com)
+```
+
+Pengunjung tidak akan pernah melihat URL VPS — URL di browser tetap `https://kamuslengkap.com/...` dengan sertifikat SSL Cloudflare.
+
+---
+
+### 2. Langkah Setup di Dashboard Cloudflare
+
+#### Langkah A: Tambahkan Custom Domain Langsung di Worker
+1. Di Cloudflare Dashboard, buka **Workers & Pages** -> pilih worker **`kamuslengkap`**.
+2. Masuk ke tab **Settings** -> **Domains & Routes**.
+3. Klik tombol **Add** -> pilih **Custom Domain**.
+4. Masukkan domain utama Anda: `kamuslengkap.com` (dan ulangi untuk `www.kamuslengkap.com` jika diperlukan).
+5. Cloudflare akan otomatis mengkonfigurasi DNS dan menerbitkan sertifikat SSL.
+
+#### Langkah B: Buat Subdomain Origin untuk VPS Lama (PENTING)
+Agar Worker bisa mem-fetch web lama tanpa terjadi pengulangan tak terbatas (*infinite loop*), buatkan 1 subdomain khusus untuk server VPS:
+1. Masuk ke menu **DNS** -> **Records** di domain `kamuslengkap.com`.
+2. Tambahkan record baru:
+   * **Type:** `A`
+   * **Name:** `origin` (menjadi `origin.kamuslengkap.com`)
+   * **IPv4 address:** `[IP_PUBLIC_VPS_DIGITALOCEAN_ANDA]`
+   * **Proxy status:** 🟧 **Proxied** (atau ⚪ DNS Only)
+3. Di file `wrangler.toml` atau di tab **Settings -> Variables and Secrets** pada Worker, set:
+   ```toml
+   ORIGIN_VPS_HOST = "https://origin.kamuslengkap.com"
+   ```
+   *(Atau bisa juga langsung menggunakan URL IP VPS jika web server di VPS mendukung).*
+
+#### Langkah C: Konfigurasi VirtualHost Nginx/Apache di VPS Lama
+Di file konfigurasi Nginx/Apache VPS lama Anda, pastikan `server_name` menerima hostname origin:
+```nginx
+server_name kamuslengkap.com www.kamuslengkap.com origin.kamuslengkap.com;
+```
+
+---
+
+### 3. Pengujian Setelah Terhubung
+* Buka `https://kamuslengkap.com/` ➔ Menampilkan **Homepage Baru**.
+* Buka `https://kamuslengkap.com/makna/fomo` ➔ Menampilkan **Makna AI Baru**.
+* Buka `https://kamuslengkap.com/kamus/jawa` ➔ Menampilkan **Kamus Klasik dari VPS Lama**.
+* Buka `https://kamuslengkap.com/istilah/kedokteran` ➔ Menampilkan **Kamus Istilah dari VPS Lama**.

@@ -8,30 +8,82 @@ interface HomeProps {
   suggestions?: WordEntry[];
 }
 
+// Daftar kata/frasa terkurasi berkualitas tinggi (slang, bahasa daerah, keilmuan, keuangan, asing)
+const CURATED_SUGGESTIONS = [
+  { term: 'FOMO', slug: 'fomo', desc: 'Slang Populer', flag: '🇬🇧' },
+  { term: 'Santuy', slug: 'santuy', desc: 'Gaul', flag: '🇮🇩' },
+  { term: 'Sumeh', slug: 'sumeh', desc: 'Bahasa Jawa', flag: '🇮🇩' },
+  { term: 'Cuan', slug: 'cuan', desc: 'Keuangan', flag: '🇮🇩' },
+  { term: 'Resiliensi', slug: 'resiliensi', desc: 'Psikologi', flag: '🇮🇩' },
+  { term: 'Ikigai', slug: 'ikigai', desc: 'Filosofi', flag: '🇯🇵' },
+  { term: 'Mager', slug: 'mager', desc: 'Gaul', flag: '🇮🇩' },
+  { term: 'Ambyar', slug: 'ambyar', desc: 'Bahasa Jawa', flag: '🇮🇩' },
+  { term: 'Pansos', slug: 'pansos', desc: 'Slang', flag: '🇮🇩' },
+  { term: 'Kognitif', slug: 'kognitif', desc: 'Sains', flag: '🇮🇩' },
+  { term: 'Hedging', slug: 'hedging', desc: 'Keuangan', flag: '🇬🇧' },
+  { term: 'Pragmatis', slug: 'pragmatis', desc: 'Baku', flag: '🇮🇩' },
+  { term: 'Schadenfreude', slug: 'schadenfreude', desc: 'Psikologi', flag: '🇩🇪' },
+  { term: 'Horas', slug: 'horas', desc: 'Bahasa Batak', flag: '🇮🇩' },
+  { term: 'Sangkil', slug: 'sangkil', desc: 'Baku', flag: '🇮🇩' },
+  { term: 'Algoritma', slug: 'algoritma', desc: 'Teknologi', flag: '🇮🇩' },
+  { term: 'Serendipity', slug: 'serendipity', desc: 'Filosofi', flag: '🇬🇧' },
+  { term: 'Bucin', slug: 'bucin', desc: 'Gaul', flag: '🇮🇩' },
+];
+
+// Validasi ketat: Hanya kata atau frasa pendek (maksimal 2 kata), bukan kalimat/klausa
+const isCleanWordOrPhrase = (term?: string): boolean => {
+  if (!term) return false;
+  const trimmed = term.trim();
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  if (words.length === 0 || words.length > 2) return false;
+  if (trimmed.length < 2 || trimmed.length > 18) return false;
+
+  const forbiddenWords = [
+    'yang', 'untuk', 'dengan', 'tidak', 'adalah', 'pada', 'dari', 'dalam',
+    'karena', 'oleh', 'dan', 'atau', 'tanpa', 'agar', 'bisa', 'akan'
+  ];
+  return !words.some((w) => forbiddenWords.includes(w.toLowerCase()));
+};
+
+// Rapikan label kategori agar ringkas dan masuk akal
+const formatTag = (tag?: string, langName?: string): string => {
+  if (!tag) return langName || 'Istilah';
+  if (/kata kerja|verba/i.test(tag)) return 'Verba';
+  if (/kata benda|nomina/i.test(tag)) return 'Nomina';
+  if (/kata sifat|adjektiva/i.test(tag)) return 'Adjektiva';
+  if (/slang populer|bahasa gaul/i.test(tag)) return 'Slang';
+  if (/kata baku|bahasa baku/i.test(tag)) return 'Baku';
+  if (tag.length > 15) return langName || 'Istilah';
+  return tag;
+};
+
 export const HomePage: FC<HomeProps> = ({
   popularWords = [],
   recentWords = [],
   suggestions = [],
 }) => {
-  // Ambil suggestion dari database D1. Fallback jika database masih kosong
-  const fallbackSuggestions = [
-    { term: 'FOMO', slug: 'fomo', desc: 'Slang Populer', flag: '🇬🇧' },
-    { term: 'Sumeh', slug: 'sumeh', desc: 'Bahasa Jawa', flag: '🇮🇩' },
-    { term: 'Resiliensi', slug: 'resiliensi', desc: 'Psikologi', flag: '🇮🇩' },
-    { term: 'Santuy', slug: 'santuy', desc: 'Gaul', flag: '🇮🇩' },
-    { term: 'Ikigai', slug: 'ikigai', desc: 'Filosofi', flag: '🇯🇵' },
-    { term: 'Cuan', slug: 'cuan', desc: 'Keuangan', flag: '🇮🇩' },
-  ];
+  // 1. Saring saran dari database: hanya terima KATA atau FRASA PENDEK yang valid
+  const validDbSuggestions = suggestions
+    .filter((s) => isCleanWordOrPhrase(s.term))
+    .map((s) => ({
+      term: s.term,
+      slug: s.slug || s.term.toLowerCase().replace(/\s+/g, '-'),
+      desc: formatTag(s.tags?.[0] || s.category, s.language_name),
+      flag: s.language_flag || '',
+    }));
 
-  const displaySuggestions =
-    suggestions.length > 0
-      ? suggestions.map((s) => ({
-          term: s.term,
-          slug: s.slug,
-          desc: s.tags?.[0] || s.language_name || 'Istilah',
-          flag: s.language_flag || '',
-        }))
-      : fallbackSuggestions;
+  // 2. Gabungkan dengan pool terkurasi jika data DB belum cukup (selalu pastikan 6-8 saran berkualitas)
+  const existingSlugs = new Set(validDbSuggestions.map((s) => s.slug));
+  const fallbackPool = CURATED_SUGGESTIONS.filter((c) => !existingSlugs.has(c.slug));
+
+  const displaySuggestions = [
+    ...validDbSuggestions,
+    ...fallbackPool,
+  ].slice(0, 7);
+
+  // 3. Saring juga kata populer agar tidak ada kalimat panjang
+  const cleanPopularWords = popularWords.filter((w) => isCleanWordOrPhrase(w.term));
+  const displayPopular = cleanPopularWords.length >= 4 ? cleanPopularWords : displaySuggestions;
 
   // Placeholder dinamis: ambil 3 term pertama dari suggestions
   const placeholderTerms = displaySuggestions
@@ -174,11 +226,11 @@ export const HomePage: FC<HomeProps> = ({
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {(popularWords.length > 0 ? popularWords : suggestions).map((w: any) => {
+          {displayPopular.map((w: any) => {
             const term = w.term || w;
             const slug = w.slug || term.toLowerCase().replace(/\s+/g, '-');
-            const primaryTag = w.tags?.[0] || w.category || w.desc || 'Istilah';
-            const flag = w.language_flag || '';
+            const primaryTag = formatTag(w.tags?.[0] || w.category || w.desc, w.language_name);
+            const flag = w.language_flag || w.flag || '';
             return (
               <a
                 href={`/makna/${slug}`}

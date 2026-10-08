@@ -24,36 +24,12 @@ export const Layout: FC<PropsWithChildren<LayoutProps>> = ({
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-          {/* Critical inline CSS — Mencegah FOUC ukuran SVG/IMG sebelum styles.css dimuat */}
-          <style
-            dangerouslySetInnerHTML={{
-              __html: `
-                *,::before,::after{box-sizing:border-box;margin:0;padding:0;border:0 solid}
-                html{-webkit-text-size-adjust:100%;line-height:1.5;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
-                body{background-color:#fefefe;color:#1a1a1a;min-height:100vh;font-family:inherit}
-                img,svg,video,canvas{display:block;vertical-align:middle;max-width:100%;height:auto}
-                svg:not([class*="w-"]){width:1.25rem;height:1.25rem}
-                svg[class*="w-4"]{width:1rem!important;height:1rem!important}
-                svg[class*="w-5"]{width:1.25rem!important;height:1.25rem!important}
-                svg[class*="w-6"]{width:1.5rem!important;height:1.5rem!important}
-                svg[class*="w-9"]{width:2.25rem!important;height:2.25rem!important}
-                svg[class*="h-9"]{height:2.25rem!important}
-                img[class*="h-9"]{height:2.25rem!important;width:auto}
-                img[class*="h-7"]{height:1.75rem!important;width:auto}
-                img[class*="h-8"]{height:2rem!important;width:auto}
-                img[class*="object-contain"]{object-fit:contain}
-              `,
-            }}
-          />
-
-          {/* Preload dan Stylesheet Utama */}
-          <link rel="preload" href="/styles.css" as="style" />
-          <link rel="stylesheet" href="/styles.css" />
-
           <title>{title}</title>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={canonical} />
+          <meta name="description" content={description} />
+          <link rel="canonical" href={canonical} />
+
+          {/* Compiled Local Tailwind CSS (No CDN) */}
+          <link rel="stylesheet" href="/styles.css" />
 
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />

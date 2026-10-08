@@ -70,7 +70,7 @@ export const MaknaPage: FC<MaknaProps> = ({ entry, relatedWords = [] }) => {
                     })()`}
                     class="p-2 text-brand-blue-deep hover:text-white hover:bg-brand-blue-dark border border-brand-blue-border rounded-full transition cursor-pointer shadow-2xs"
                   >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                     </svg>
                   </button>
@@ -103,7 +103,7 @@ export const MaknaPage: FC<MaknaProps> = ({ entry, relatedWords = [] }) => {
             {/* Quick Definition (Callout Box in Primary Soft Blue) */}
             <div class="my-6 p-4 rounded-xl bg-brand-blue-light border-l-4 border-l-brand-blue-dark border border-brand-blue-border/70 text-brand-black">
               <div class="text-xs font-bold uppercase tracking-wider text-brand-blue-deep mb-1.5 flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-brand-blue-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-brand-blue-dark" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Ringkasan Makna
@@ -129,7 +129,7 @@ export const MaknaPage: FC<MaknaProps> = ({ entry, relatedWords = [] }) => {
             {entry.examples && entry.examples.length > 0 && (
               <div class="my-8 pt-6 border-t border-stone-100">
                 <h2 class="text-sm font-bold uppercase tracking-wider text-stone-500 mb-4 flex items-center gap-2">
-                  <svg class="w-4 h-4 text-brand-blue-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-brand-blue-dark" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                   </svg>
                   Contoh Penggunaan dalam Kalimat

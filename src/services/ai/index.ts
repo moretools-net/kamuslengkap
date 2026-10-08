@@ -104,7 +104,7 @@ export function getAIProvider(env: Env): AIProvider {
       priority: preferred === 'gemini' ? 1 : 3,
       provider: new GeminiProvider(
         env.GEMINI_API_KEY!.trim(),
-        env.GEMINI_MODEL || 'gemini-3.5-flash'
+        env.GEMINI_MODEL || 'gemini-3.5-flash-lite'
       ),
     });
   }
@@ -143,7 +143,7 @@ export function getAIProvider(env: Env): AIProvider {
         env.CF_GATEWAY_ID!.trim(),
         env.GEMINI_API_KEY!.trim(),
         'gemini',
-        env.GEMINI_MODEL || 'gemini-3.5-flash'
+        env.GEMINI_MODEL || 'gemini-3.5-flash-lite'
       ),
     });
   }

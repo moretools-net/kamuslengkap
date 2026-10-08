@@ -7,7 +7,7 @@ export class GeminiProvider implements AIProvider {
   private apiKeys: string[];
   private candidateModels: string[];
 
-  constructor(apiKeys: string | string[], model: string = 'gemini-3.5-flash') {
+  constructor(apiKeys: string | string[], model: string = 'gemini-3.5-flash-lite') {
     // Dukung input single key, array, atau string dipisah koma / newline:
     if (Array.isArray(apiKeys)) {
       this.apiKeys = apiKeys.map((k) => k.trim()).filter(Boolean);
@@ -18,8 +18,9 @@ export class GeminiProvider implements AIProvider {
         .filter(Boolean);
     }
 
-    // Model alternatif jika model utama terkena rate limit / kuota habis:
-    const models = [model, 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+    // Model alternatif jika model tertentu terkena rate limit / kuota habis:
+    // gemini-3.5-flash-lite diprioritaskan karena kuota free tier harian jauh lebih besar dibanding 3.5-flash
+    const models = [model, 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.1-flash-lite'];
     this.candidateModels = [...new Set(models.filter(Boolean))];
   }
 
@@ -45,7 +46,7 @@ export class GeminiProvider implements AIProvider {
         ? `${currentKey.slice(0, 4)}...${currentKey.slice(-4)}`
         : '***';
 
-      // 2. Loop setiap model pilihan (flash -> flash-lite)
+      // 2. Loop setiap model pilihan
       for (const model of this.candidateModels) {
         try {
           return await this.fetchWithModel(term, model, currentKey);
@@ -56,12 +57,13 @@ export class GeminiProvider implements AIProvider {
 
           console.warn(`[Gemini] Key ${maskedKey} dengan model ${model} gagal (${status ?? 'ERR'}): ${msg}`);
 
-          // Jika API Key tidak valid (401/403) atau quota per-key habis total (429),
-          // jangan buang waktu mencoba model lain di key yang sama, langsung pindah ke key berikutnya!
-          if (status === 401 || status === 403 || (status === 429 && msg.includes('Quota exceeded'))) {
-            console.warn(`[Gemini] Beralih ke API Key berikutnya karena status ${status}`);
-            break; // keluar dari loop model, lanjut ke key berikutnya
+          // Jika API Key tidak valid / salah token (401/403), key ini rusak, langsung ganti key
+          if (status === 401 || status === 403) {
+            console.warn(`[Gemini] API Key tidak valid (${status}), beralih ke key berikutnya`);
+            break; // keluar dari loop model, coba key berikutnya
           }
+          // Catatan: Jika 429 (Resource Exhausted), kuota di Google adalah per-model.
+          // Jadi JANGAN break di sini, biarkan loop mencoba model berikutnya (misal flash-lite)!
         }
       }
     }

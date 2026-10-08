@@ -11,6 +11,7 @@ assets = { directory = "./public", binding = "ASSETS" }
 binding = "DB"
 database_name = "kamuslengkap-db"
 database_id = "a0e9c904-4fb6-4889-8ec4-59e993cb183b"
+preview_database_id = "a0e9c904-4fb6-4889-8ec4-59e993cb183b"
 
 # Cloudflare Workers AI Binding (Bawaan Cloudflare tanpa perlu API key luar)
 [ai]

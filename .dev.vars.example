@@ -2,7 +2,7 @@
 AI_PROVIDER=workers_ai
 WORKERS_AI_MODEL=@cf/meta/llama-3.2-3b-instruct
 
-# Google Gemini API (Dapatkan gratis di https://aistudio.google.com/)
+# Google Gemini API (Bisa isi 1 key atau beberapa key dipisah koma untuk failover otomatis: key1,key2,key3)
 GEMINI_API_KEY=
 GEMINI_MODEL=gemini-3.5-flash
 

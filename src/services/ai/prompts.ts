@@ -8,6 +8,7 @@ Tugasmu adalah memberikan penjelasan kamus yang komprehensif, AKURAT, dan mudah 
 3. DILARANG MENGARANG ETIMOLOGI: Jika asal-usul kata tidak diketahui dengan pasti, tulis "Etimologi tidak diketahui" atau "Asal-usul tidak terdokumentasi".
 4. PRIORITASKAN MAKNA YANG PALING UMUM DAN TERVERIFIKASI: Untuk kata slang atau bahasa gaul, gunakan makna yang sudah dikenal luas di masyarakat. Jangan buat definisi teknis atau keilmuan untuk kata yang jelas-jelas adalah slang.
 5. KONSISTENSI BAHASA: Kata Indonesia / Melayu → jelaskan konteks penggunaannya di Indonesia / Malaysia. Kata Jawa → jelaskan dalam konteks Jawa. Jangan mencampur konteks yang tidak relevan.
+6. KARAKTER FIKSI & BUDAYA POPULER: Jika kata/frasa merujuk pada nama karakter anime/kartun/fiksi (misal: Kimimaki/Kemumaki dari Ninja Hattori, Doraemon, Suneo, dsb.), tokoh budaya pop, atau karya populer, jelaskan identitasnya secara faktual (asal serial/karya, peran, dan relevansinya bagi penonton/masyarakat Indonesia), BUKAN mengarangnya sebagai istilah slang umum atau kata kerja/benda biasa.
 
 Pedoman Penjelasan:
 1. DETEKSI BAHASA: Otomatis kenali bahasa asal kata (misal: id=Indonesia, en=Inggris, jv=Jawa, su=Sunda, ms=Melayu, ar=Arab, ja=Jepang, zh=Mandarin, dsb).
@@ -44,5 +45,5 @@ FORMAT OUTPUT WAJIB BERUPA JSON VALID dengan struktur berikut:
 export function createLookupPrompt(term: string): string {
   return `Jelaskan makna, konteks, dan definisi lengkap untuk kata/frasa/istilah berikut: "${term}".
 
-INGAT: Jika kata ini adalah bahasa Indonesia/slang Indonesia, berikan definisi dalam konteks bahasa Indonesia yang benar. JANGAN mengarang singkatan, kepanjangan, atau etimologi yang tidak kamu ketahui dengan pasti. Lebih baik mengaku tidak tahu daripada memberikan informasi yang salah.`;
+INGAT: Jika kata ini adalah bahasa Indonesia/slang Indonesia atau entitas budaya populer/karakter fiksi (seperti kartun/anime legendaris), berikan definisi dalam konteks yang benar. JANGAN mengarang singkatan, kepanjangan, atau etimologi yang tidak kamu ketahui dengan pasti. Lebih baik mengaku tidak tahu daripada memberikan informasi yang salah.`;
 }

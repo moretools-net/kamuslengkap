@@ -35,8 +35,8 @@ const isCleanWordOrPhrase = (term?: string): boolean => {
   if (!term) return false;
   const trimmed = term.trim();
   const words = trimmed.split(/\s+/).filter(Boolean);
-  if (words.length === 0 || words.length > 2) return false;
-  if (trimmed.length < 2 || trimmed.length > 18) return false;
+  if (words.length !== 1 || trimmed.includes(' ')) return false;
+  if (trimmed.length < 2 || trimmed.length > 20) return false;
 
   const forbiddenWords = [
     'yang', 'untuk', 'dengan', 'tidak', 'adalah', 'pada', 'dari', 'dalam',
@@ -90,7 +90,7 @@ export const HomePage: FC<HomeProps> = ({
     .slice(0, 3)
     .map((s) => s.term.toLowerCase())
     .join(', ');
-  const searchPlaceholder = `Ketik kata atau istilah apa saja (contoh: ${placeholderTerms})...`;
+  const searchPlaceholder = `Ketik satu kata (contoh: ${placeholderTerms})...`;
 
   return (
     <Layout

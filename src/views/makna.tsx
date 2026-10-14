@@ -30,6 +30,7 @@ export const MaknaPage: FC<MaknaProps> = ({ entry, relatedWords = [] }) => {
       canonical={canonicalUrl}
       jsonLd={jsonLd}
       currentPath={`/makna/${entry.slug}`}
+      noindex={entry.is_valid_entry === false}
     >
       {/* Breadcrumb Navigation (Links in Blue) */}
       <nav class="flex items-center gap-2 text-xs text-stone-500 mb-6">
@@ -39,6 +40,15 @@ export const MaknaPage: FC<MaknaProps> = ({ entry, relatedWords = [] }) => {
         <span>/</span>
         <span class="text-brand-black font-semibold">{entry.term}</span>
       </nav>
+
+      {entry.is_valid_entry === false && (
+        <div class="mb-6 p-4 rounded-xl bg-amber-50/80 border border-amber-200/80 text-amber-800 text-xs flex items-center gap-3">
+          <span class="text-base">ℹ️</span>
+          <div>
+            <strong>Bukan Entri Baku Kamus:</strong> "{entry.term}" merupakan frasa kalimat bebas atau susunan kata gramatikal, bukan lema / istilah khusus dalam kamus. Halaman ini tidak diindeks secara publik.
+          </div>
+        </div>
+      )}
 
       {/* Main Grid: Content + Sidebar */}
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -163,45 +173,75 @@ export const MaknaPage: FC<MaknaProps> = ({ entry, relatedWords = [] }) => {
             )}
 
             {/* Synonyms (Blue) & Antonyms (Red Accent) */}
-            {(entry.synonyms?.length > 0 || entry.antonyms?.length > 0) && (
-              <div class="my-6 pt-6 border-t border-stone-100 flex flex-col sm:flex-row gap-6">
-                {entry.synonyms && entry.synonyms.length > 0 && (
-                  <div class="flex-1">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">
-                      Sinonim &amp; Kata Terkait
-                    </h3>
-                    <div class="flex flex-wrap gap-1.5">
-                      {entry.synonyms.map((syn) => (
-                        <a
-                          href={`/makna/${syn.toLowerCase().trim().replace(/\s+/g, '-')}`}
-                          class="px-2.5 py-1 bg-stone-100 hover:bg-brand-blue-light hover:text-brand-blue-dark text-stone-700 rounded-md text-xs font-medium transition border border-stone-200 hover:border-brand-blue"
-                        >
-                          {syn}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {(entry.synonyms?.length > 0 || entry.antonyms?.length > 0) && (() => {
+              const isLinkable = (str: string) => {
+                const trimmed = str.trim();
+                const words = trimmed.split(/\s+/);
+                if (words.length > 2) return false;
+                if (/\b(yang|tidak|dengan|untuk|dalam|secara|sangat|kurang|bukan|di|ke|dari|pada|oleh|atau|dan)\b/i.test(trimmed)) {
+                  return false;
+                }
+                return true;
+              };
 
-                {entry.antonyms && entry.antonyms.length > 0 && (
-                  <div class="flex-1">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">
-                      Lawan Kata (Antonim)
-                    </h3>
-                    <div class="flex flex-wrap gap-1.5">
-                      {entry.antonyms.map((ant) => (
-                        <a
-                          href={`/makna/${ant.toLowerCase().trim().replace(/\s+/g, '-')}`}
-                          class="px-2.5 py-1 bg-stone-100 hover:bg-brand-red-light hover:text-brand-red text-stone-700 rounded-md text-xs font-medium transition border border-stone-200 hover:border-brand-red/40"
-                        >
-                          {ant}
-                        </a>
-                      ))}
+              return (
+                <div class="my-6 pt-6 border-t border-stone-100 flex flex-col sm:flex-row gap-6">
+                  {entry.synonyms && entry.synonyms.length > 0 && (
+                    <div class="flex-1">
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">
+                        Sinonim &amp; Kata Terkait
+                      </h3>
+                      <div class="flex flex-wrap gap-1.5">
+                        {entry.synonyms.map((syn) => {
+                          if (isLinkable(syn)) {
+                            return (
+                              <a
+                                href={`/makna/${syn.toLowerCase().trim().replace(/\s+/g, '-')}`}
+                                class="px-2.5 py-1 bg-stone-100 hover:bg-brand-blue-light hover:text-brand-blue-dark text-stone-700 rounded-md text-xs font-medium transition border border-stone-200 hover:border-brand-blue"
+                              >
+                                {syn}
+                              </a>
+                            );
+                          }
+                          return (
+                            <span class="px-2.5 py-1 bg-stone-50 text-stone-600 rounded-md text-xs font-medium border border-stone-200">
+                              {syn}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+
+                  {entry.antonyms && entry.antonyms.length > 0 && (
+                    <div class="flex-1">
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">
+                        Lawan Kata (Antonim)
+                      </h3>
+                      <div class="flex flex-wrap gap-1.5">
+                        {entry.antonyms.map((ant) => {
+                          if (isLinkable(ant)) {
+                            return (
+                              <a
+                                href={`/makna/${ant.toLowerCase().trim().replace(/\s+/g, '-')}`}
+                                class="px-2.5 py-1 bg-stone-100 hover:bg-brand-red-light hover:text-brand-red text-stone-700 rounded-md text-xs font-medium transition border border-stone-200 hover:border-brand-red/40"
+                              >
+                                {ant}
+                              </a>
+                            );
+                          }
+                          return (
+                            <span class="px-2.5 py-1 bg-stone-50 text-stone-600 rounded-md text-xs font-medium border border-stone-200">
+                              {ant}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </article>
 
           {/* Inline Search for another word */}
@@ -278,7 +318,7 @@ export const MaknaPage: FC<MaknaProps> = ({ entry, relatedWords = [] }) => {
                 Pencarian Lainnya
               </h3>
               <ul class="space-y-2 text-xs">
-                {relatedWords.map((rw) => (
+                {relatedWords.filter((rw) => !rw.term.includes(' ')).map((rw) => (
                   <li>
                     <a
                       href={`/makna/${rw.slug}`}

@@ -142,14 +142,9 @@ export async function getPopularWords(db: D1Database, limit: number = 10): Promi
           l.flag_emoji AS lang_flag
         FROM words w
         LEFT JOIN languages l ON w.language_code = l.code
-        WHERE (LENGTH(w.term) - LENGTH(REPLACE(w.term, ' ', ''))) <= 1
+        WHERE w.term NOT LIKE '% %'
           AND LENGTH(w.term) BETWEEN 2 AND 22
-          AND w.term NOT LIKE '% yang %'
-          AND w.term NOT LIKE '% untuk %'
-          AND w.term NOT LIKE '% dengan %'
-          AND w.term NOT LIKE '% tidak %'
-          AND w.term NOT LIKE '% adalah %'
-          AND w.term NOT LIKE 'tidak %'
+          AND w.term NOT LIKE 'tidak%'
           AND w.slug NOT LIKE 'tidak-%'
           AND w.slug NOT LIKE '%tidak-ada%'
         ORDER BY w.search_count DESC, w.updated_at DESC
@@ -176,14 +171,9 @@ export async function getRecentWords(db: D1Database, limit: number = 8): Promise
           l.flag_emoji AS lang_flag
         FROM words w
         LEFT JOIN languages l ON w.language_code = l.code
-        WHERE (LENGTH(w.term) - LENGTH(REPLACE(w.term, ' ', ''))) <= 1
+        WHERE w.term NOT LIKE '% %'
           AND LENGTH(w.term) BETWEEN 2 AND 22
-          AND w.term NOT LIKE '% yang %'
-          AND w.term NOT LIKE '% untuk %'
-          AND w.term NOT LIKE '% dengan %'
-          AND w.term NOT LIKE '% tidak %'
-          AND w.term NOT LIKE '% adalah %'
-          AND w.term NOT LIKE 'tidak %'
+          AND w.term NOT LIKE 'tidak%'
           AND w.slug NOT LIKE 'tidak-%'
           AND w.slug NOT LIKE '%tidak-ada%'
         ORDER BY w.created_at DESC
@@ -211,14 +201,8 @@ export async function getRandomWords(db: D1Database, limit: number = 8): Promise
           l.flag_emoji AS lang_flag
         FROM words w
         LEFT JOIN languages l ON w.language_code = l.code
-        WHERE (LENGTH(w.term) - LENGTH(REPLACE(w.term, ' ', ''))) <= 1
+        WHERE w.term NOT LIKE '% %'
           AND LENGTH(w.term) BETWEEN 3 AND 16
-          AND w.term NOT LIKE '% yang %'
-          AND w.term NOT LIKE '% untuk %'
-          AND w.term NOT LIKE '% dengan %'
-          AND w.term NOT LIKE '% tidak %'
-          AND w.term NOT LIKE '% adalah %'
-          AND w.term NOT LIKE '% dan %'
           AND w.term NOT LIKE 'tidak%'
           AND w.slug NOT LIKE 'tidak-%'
           AND w.slug NOT LIKE '%tidak-ada%'
@@ -260,16 +244,12 @@ export async function getAllSlugs(
   try {
     const { results } = await db
       .prepare(
-        `SELECT slug, updated_at FROM words
-         WHERE (LENGTH(term) - LENGTH(REPLACE(term, ' ', ''))) <= 1
-           AND LENGTH(term) BETWEEN 2 AND 25
-           AND term NOT LIKE '% yang %'
-           AND term NOT LIKE '% untuk %'
-           AND term NOT LIKE '% dengan %'
-           AND term NOT LIKE '% tidak %'
-           AND term NOT LIKE '% adalah %'
-           AND slug NOT LIKE 'tidak-%'
-           AND slug NOT LIKE '%tidak-ada%'
+        `SELECT slug, updated_at FROM words w
+         WHERE w.term NOT LIKE '% %'
+           AND LENGTH(w.term) BETWEEN 2 AND 25
+           AND w.term NOT LIKE 'tidak%'
+           AND w.slug NOT LIKE 'tidak-%'
+           AND w.slug NOT LIKE '%tidak-ada%'
          ORDER BY search_count DESC, updated_at DESC
          LIMIT 5000`
       )

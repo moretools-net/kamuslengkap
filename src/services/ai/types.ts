@@ -149,6 +149,28 @@ export function buildWordEntry(
     parsed.formality,
   ]);
 
+  // Filter sinonim & antonim agar HANYA kata tunggal atau istilah baku ringkas (maks 2 kata, tanpa stopwords)
+  const cleanKeywords = (list: any): string[] => {
+    if (!Array.isArray(list)) return [];
+    return list
+      .filter((item): item is string => typeof item === 'string')
+      .map((s) => s.trim())
+      .filter((s) => {
+        if (!s) return false;
+        const words = s.split(/\s+/);
+        if (words.length > 2) return false;
+        if (/\b(yang|tidak|dengan|untuk|dalam|secara|sangat|kurang|bukan|di|ke|dari|pada|oleh|atau|dan)\b/i.test(s)) {
+          return false;
+        }
+        return true;
+      });
+  };
+
+  // Cek kelayakan entri kamus: frasa kalimat bebas (seperti "dianggap penting", "mengabaikan kebahagiaan")
+  const wordCount = termClean.split(/\s+/).length;
+  const hasSubordinatingMarker = /\b(yang|untuk|dengan|secara|bahwa|agar|supaya|karena|sehingga|dianggap|mengabaikan)\b/i.test(termClean);
+  const isValidEntry = parsed.is_valid_entry !== false && !(wordCount > 3) && !(wordCount >= 2 && hasSubordinatingMarker);
+
   return {
     slug: slugify(termClean),
     term: termClean,
@@ -162,9 +184,10 @@ export function buildWordEntry(
     definition_short: parsed.definition_short || '',
     definition_full: parsed.definition_full || '',
     examples: Array.isArray(parsed.examples) ? parsed.examples : [],
-    synonyms: Array.isArray(parsed.synonyms) ? parsed.synonyms : [],
-    antonyms: Array.isArray(parsed.antonyms) ? parsed.antonyms : [],
+    synonyms: cleanKeywords(parsed.synonyms),
+    antonyms: cleanKeywords(parsed.antonyms),
     cultural_context: parsed.cultural_context || '',
+    is_valid_entry: isValidEntry,
     provider_used: providerLabel,
   };
 }

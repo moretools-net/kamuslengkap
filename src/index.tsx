@@ -101,8 +101,10 @@ app.get('/makna/:slug', async (c) => {
       // Pastikan slug konsisten
       entry.slug = slug;
 
-      // Simpan ke database D1 di background agar pencarian berikutnya instan
-      c.executionCtx?.waitUntil(saveWord(c.env.DB, entry));
+      // Simpan ke database D1 di background HANYA jika merupakan entri kamus yang sah
+      if (entry.is_valid_entry !== false) {
+        c.executionCtx?.waitUntil(saveWord(c.env.DB, entry));
+      }
     } catch (err: any) {
       console.error(`Gagal mengurai kata "${slug}":`, err);
 
@@ -139,8 +141,8 @@ app.get('/makna/:slug', async (c) => {
   // Ambil kata terkait untuk sidebar
   const relatedWords = await getPopularWords(c.env.DB, 6).catch(() => []);
 
-  // Cloudflare Edge Cache: Simpan halaman di CDN selama 24 jam (1 hari), browser 1 jam
-  if (entry && !entry.provider_used?.includes('demo')) {
+  // Cloudflare Edge Cache: Simpan halaman di CDN selama 24 jam (1 hari) HANYA jika valid lema
+  if (entry && !entry.provider_used?.includes('demo') && entry.is_valid_entry !== false) {
     c.header('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     c.header('CDN-Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
   } else {
@@ -162,7 +164,9 @@ app.get('/api/makna/:query', async (c) => {
       const provider = getAIProvider(c.env);
       entry = await provider.lookupWord(slug.replace(/-/g, ' '));
       entry.slug = slug;
-      c.executionCtx?.waitUntil(saveWord(c.env.DB, entry));
+      if (entry.is_valid_entry !== false) {
+        c.executionCtx?.waitUntil(saveWord(c.env.DB, entry));
+      }
     } catch (err: any) {
       c.header('Cache-Control', 'no-store, no-cache');
       return c.json({ success: false, error: err.message }, 500);
@@ -171,13 +175,44 @@ app.get('/api/makna/:query', async (c) => {
     c.executionCtx?.waitUntil(incrementSearchCount(c.env.DB, slug));
   }
 
-  if (entry && !entry.provider_used?.includes('demo')) {
+  if (entry && !entry.provider_used?.includes('demo') && entry.is_valid_entry !== false) {
     c.header('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     c.header('CDN-Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+  } else {
+    c.header('Cache-Control', 'no-store, no-cache, must-revalidate');
   }
 
   return c.json({ success: true, data: entry });
 });
+
+// Helper untuk validasi & format tanggal sitemap (W3C Datetime format: YYYY-MM-DD)
+function formatSitemapDate(rawDate?: string | null, fallbackDate: string = new Date().toISOString().split('T')[0]): string {
+  if (!rawDate) return fallbackDate;
+  // SQLite CURRENT_TIMESTAMP menghasilkan 'YYYY-MM-DD HH:MM:SS'
+  // Ambil bagian YYYY-MM-DD agar valid W3C Datetime format untuk Google Search Console
+  const match = String(rawDate).trim().match(/^(\d{4}-\d{2}-\d{2})/);
+  if (match) {
+    return match[1];
+  }
+  const parsed = new Date(rawDate);
+  if (!isNaN(parsed.getTime())) {
+    return parsed.toISOString().split('T')[0];
+  }
+  return fallbackDate;
+}
+
+function escapeXml(unsafe: string): string {
+  return unsafe.replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+      default: return c;
+    }
+  });
+}
 
 // 5. Sitemap XML — generate dinamis dari D1 + halaman statis
 app.get('/sitemap.xml', async (c) => {
@@ -195,11 +230,10 @@ app.get('/sitemap.xml', async (c) => {
   const slugRows = await getAllSlugs(c.env.DB).catch(() => []);
 
   const dynamicUrls = slugRows.map(({ slug, updated_at }) => {
-    const lastmod = updated_at
-      ? updated_at.split('T')[0]
-      : today;
+    const lastmod = formatSitemapDate(updated_at, today);
+    const loc = escapeXml(`${BASE_URL}/makna/${slug}`);
     return `  <url>
-    <loc>${BASE_URL}/makna/${slug}</loc>
+    <loc>${loc}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -209,7 +243,7 @@ app.get('/sitemap.xml', async (c) => {
   const staticXml = staticUrls
     .map(
       ({ loc, priority, changefreq, lastmod }) =>
-        `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`
+        `  <url>\n    <loc>${escapeXml(loc)}</loc>\n    <lastmod>${formatSitemapDate(lastmod, today)}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`
     )
     .join('\n');
 

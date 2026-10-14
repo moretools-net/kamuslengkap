@@ -7,6 +7,7 @@ interface LayoutProps {
   canonical?: string;
   jsonLd?: object;
   currentPath?: string;
+  noindex?: boolean;
 }
 
 export const Layout: FC<PropsWithChildren<LayoutProps>> = ({
@@ -16,6 +17,7 @@ export const Layout: FC<PropsWithChildren<LayoutProps>> = ({
   canonical = 'https://kamuslengkap.com',
   jsonLd,
   currentPath = '/',
+  noindex = false,
 }) => {
   return (
     <>
@@ -26,6 +28,7 @@ export const Layout: FC<PropsWithChildren<LayoutProps>> = ({
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>{title}</title>
           <meta name="description" content={description} />
+          {noindex && <meta name="robots" content="noindex, nofollow" />}
           <link rel="canonical" href={canonical} />
 
           {/* Compiled Local Tailwind CSS (No CDN) */}

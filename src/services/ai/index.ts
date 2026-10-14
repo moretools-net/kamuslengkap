@@ -148,10 +148,10 @@ export function getAIProvider(env: Env): AIProvider {
     });
   }
 
-  // --- Cloudflare Workers AI (selalu terakhir, fallback gratis) ---
-  if (hasWorkersAI) {
+  // --- Cloudflare Workers AI (hanya jika eksplisit dipilih via AI_PROVIDER=workers_ai, tidak dijadikan fallback liar) ---
+  if (hasWorkersAI && preferred === 'workers_ai') {
     allProviders.push({
-      priority: preferred === 'workers_ai' ? 1 : 99,
+      priority: 1,
       provider: new WorkersAIProvider(
         env.AI,
         env.WORKERS_AI_MODEL || '@cf/meta/llama-3.2-3b-instruct'

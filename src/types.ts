@@ -51,6 +51,7 @@ export interface WordEntry {
   synonyms: string[];
   antonyms: string[];
   cultural_context: string;
+  is_valid_entry?: boolean;    // true jika lema/istilah sah kamus, false jika frasa bebas sintaksis
   search_count?: number;
   provider_used?: string;
   created_at?: string;
